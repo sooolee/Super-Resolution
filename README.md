@@ -2,7 +2,7 @@
 
 ## About the Project
 This project’s purpose was to evaluate the applicability of super resolution algorithms to a business process of Mattoboard, a startup company. Mattoboard (https://mattoboard.com/) builds 3D online material boards for interior designers. Some examples of the 3D material boards are shown below.
-![material-board]
+![material-board](https://github.com/sooolee/super-resolution/blob/main/images_readme/mattoboard-image.png?raw=true)
 
 
 
@@ -26,9 +26,9 @@ First, before any fine-tuning or training, some inferences were made using three
 
 It was very hard to say one is better than the other purely based on visual inspection because the results varied depending on the types of materials (fabric vs. tile). While there are many good quality outputs, I am presenting some of the lower quality examples below to hightlight the weaknesses of the current models. 
 
-**From Left to Right Columns: Low-Resolution, Real-ESRGAN, A-ESRGAN-Single, A_ESRGAN-Multi**
+**From Left to Right Columns: Original-Low Resolution, Real-ESRGAN, A-ESRGAN-Single, A_ESRGAN-Multi**
 
-![initial_inferences]
+![initial_inferences](https://github.com/sooolee/super-resolution/blob/main/images_readme/initial_inferences.png?raw=true)
 
 - One noticeable thing about the outputs of Real_ESRGAN was the change of the color tone. That is, most of the upscaled outputs slightly lost yellow tone and projected whiter tone. 
 - For all models, fabrics and carpets seemed to be the toughest ones to upscale as most outputs failed capturing the texture. Some of them look much worse than its original low-resolution version. 
@@ -131,7 +131,7 @@ The training from scratch with the full material dataset improved the image qual
 
 There were slight differences in hyperparameters setting between the two training sessions as well. Here is the summary compared to the original model by the authors.  
 
-![hyperparameters]
+![hyperparameters](https://github.com/sooolee/super-resolution/blob/main/images_readme/hyperparameters.png?raw=true)
 
 
 Other than the different datasets, following hyperparameters are worth noting as they would have impacted the output quality. Since I didn’t perform any ablation study, I can’t tell whether each of these actually impacted the quality and if it did how much.
@@ -146,7 +146,8 @@ Other than the different datasets, following hyperparameters are worth noting as
 
 The same samples used for the Initial Inferences were used for inferences by the newly trained models and the same lower quality examples are presented below for comparisons. 
 
-Original-LR  vs.  A-ESRGAN-Multi vs. Training 1 Model  vs.  Training 2 Model
+**From Left to Right Columns: Original-LR, A_ESRGAN-Multi, Training 1, Training 2**
+![trained_inferences](https://github.com/sooolee/super-resolution/blob/main/images_readme/trained_inferences.png?raw=true)
 
 Both Training 1 and 2 Models show improvements from the original A-ESRGAN-Multi inferences for most types of materials, and especially so for fabrics and carpets. 
 I was expecting better results for fabrics and carpets from Training 2 Model as the datasets were more focused. But interestingly, Training 1 Model outputs visually look better. I can’t tell whether it is due to Training 1’s loss weight ratio (more pixel loss than perceptual loss), or because Training 2 suffered from lack of iterations while having much lower learning rate. This is because I made changes to multiple hyperparameters at a time. My mistake!!! 
