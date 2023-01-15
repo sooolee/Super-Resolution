@@ -43,9 +43,9 @@ Following three different training approaches were performed with the A-ESRGAN-M
 
 Fine-tuning didn’t make much difference from the original pretrained model. So I moved on to full training.
 
->According to the authors, A-ESRGAN is trained in two stages, which have the same data synthesis process and training pipeline, except for the loss functions. This training process is the same as for Real-ESRGAN.
->1. First train Real-ESRNet with L1 loss from the pre-trained model ESRGAN.
-> 2. Use the trained Real-ESRNet model as an initialization of the generator, and train the A-ESRGAN with a combination of L1 loss, perceptual loss and GAN loss. 
+According to the authors, A-ESRGAN is trained in two stages, which have the same data synthesis process and training pipeline, except for the loss functions. This training process is the same as for Real-ESRGAN.
+1. First train Real-ESRNet with L1 loss from the pre-trained model ESRGAN.
+2. Use the trained Real-ESRNet model as an initialization of the generator, and train the A-ESRGAN with a combination of L1 loss, perceptual loss and GAN loss. 
 
 ## Codes
 The codes presented here are for the case of using the full dataset (Training 1). 
@@ -134,12 +134,12 @@ There were slight differences in hyperparameters setting between the two trainin
 ![hyperparameters](https://github.com/sooolee/super-resolution/blob/main/images_readme/hyperparameters.png?raw=true)
 
 
-Other than the different datasets, following hyperparameters are worth noting as they would have impacted the output quality. Since I didn’t perform any ablation study, I can’t tell whether each of these actually impacted the quality and if it did how much.
+Other than the different datasets, following hyperparameters are worth noting as they would have impacted the output quality. Since no ablation study is performed, it is not possible to know how each of these impacted the quality.
 
-- **Initialization of generator:** Training of ESRNet was done only once but resulted in multiple checkpoints. Initially I used the one at 35,000 iteration for Training 1, but changed to one at 55,000 iteration for Training 2 because the loss values were slightly better.
-- **Total iteration:** While dealing with the limited resources, I increased the total iteration for Training 2 as I lowered the learning rate. Retrospectively though, I feel that the iteration should have been increased even more to match the learning rate decrease. 
-- **Learning rate:** The same learning rate used in the original study was used for Training 1. Lower learning rate was used for Training 2 hoping for better results. 
-- **Loss weight ratios between (Pixel : Perceptual : GAN):** The original study set the same ratio between pixel and perceptual losses (1 : 1 : 0.1). I increased the pixel loss ratio and slightly the GAN loss ratio to (2 : 1 : 0.2). The rationale behind it is that since I’m dealing with material images, where the contents are mostly patterns or some images spread out evenly, the perceptual losses had less meaning. In fact, I trained the model with (4 : 1 : 0.2) and the model inferences produced a lot more artifacts. For training 2, I went back to (1 : 1 : 0.1). 
+- ***Initialization of generator:*** Training of ESRNet was done only once but resulted in multiple checkpoints. Initially I used the one at 35,000 iteration for Training 1, but changed to one at 55,000 iteration for Training 2 because the loss values were slightly better.
+- ***Total iteration:*** While dealing with the limited resources, I increased the total iteration for Training 2 as I lowered the learning rate. Retrospectively though, I feel that the iteration should have been increased even more to match the learning rate decrease. 
+- ***Learning rate:*** The same learning rate used in the original study was used for Training 1. Lower learning rate was used for Training 2 hoping for better results. 
+- ***Loss weight ratios between (Pixel : Perceptual : GAN):*** The original study set the same ratio between pixel and perceptual losses (1 : 1 : 0.1). I increased the pixel loss ratio and slightly the GAN loss ratio to (2 : 1 : 0.2). The rationale behind it is that since I’m dealing with material images, where the contents are mostly patterns or some images spread out evenly, the perceptual losses had less meaning. In fact, I trained the model with (4 : 1 : 0.2) and the model inferences produced a lot more artifacts. For training 2, I went back to (1 : 1 : 0.1). 
 
 
 ## Results
@@ -159,7 +159,10 @@ This was a very fun project for me to learn through researching and training dif
 
 ***Lessons learned:*** Training with different hyperparameters needs to be more carefully designed in the beginning so that impacts by each can be explained. 
 
-
-
-
 ## Stable Diffusion Upscaler
+{Update} -- 
+Later, I used Stable Diffusion Upscaler `stabilityai/stable-diffusion-x4-upscaler` and am very impressed by the results. The Stable Diffusion outputs for the same 5 examples from above are presented below.
+
+![sd_examples](https://github.com/sooolee/super-resolution/blob/main/images_readme/sd_inferences.png?raw=true)
+
+Further experiments would be needed but this is very exciting and promising for Mattoboard. 
