@@ -40,8 +40,8 @@ While the outputs of the A-ESRGAN-Multi scale model weren’t necessarily the be
 Following three different training approaches were performed with the A-ESRGAN-Multi model. 
 
 - Fine-tuning with the full dataset
-- Training 1: Initialization of generator using the full dataset
-- Training 2: Initialization of generator using the reduced dataset
+- Training 1: Initialization of generator and training of A-ESRGAN-Multi using the full dataset
+- Training 2: Initialization of generator using the full dataset and training of A-ESRGAN-Multi using the reduced dataset
 
 Fine-tuning didn’t make much difference from the original pretrained model. So I moved on to full training.
 
