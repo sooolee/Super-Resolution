@@ -22,18 +22,20 @@ Various raw material images obtained from the web, typically from material suppl
 
 
 ## Implementation Strategies
-First, before any fine-tuning or training, some inferences were made using three models, Real-ESRGAN, A-ESRGAN-Single and A-ESRGAN-Multi models, to set the basis for comparisons. 
+First, before any fine-tuning or training, I made inferences using the three pre-trained models (Real-ESRGAN, A-ESRGAN-Single and A-ESRGAN-Multi models) to set the basis for comparisons. 
 
-It was very hard to say one is better than the other purely based on visual inspection because the results varied depending on the types of materials (fabric vs. tile). While there are many good quality outputs, I am presenting some of the lower quality examples below to hightlight the weaknesses of the current models. 
+It was very hard to say one is better than the other purely based on visual inspections because the results varied depending on the types of materials (fabric vs. tile). 
 
-**From Left to Right Columns: Original-Low Resolution, Real-ESRGAN, A-ESRGAN-Single, A_ESRGAN-Multi**
+While there are many good quality outputs, I am presenting some of the lower quality examples below to hightlight the weaknesses of the current models. 
+
+**From Left to Right Columns: Original-Low Resolution >>> Real-ESRGAN >>> A-ESRGAN-Single >>> A_ESRGAN-Multi**
 
 ![initial_inferences](https://github.com/sooolee/super-resolution/blob/main/images_readme/initial_inferences.png?raw=true)
 
 - One noticeable thing about the outputs of Real_ESRGAN was the change of the color tone. That is, most of the upscaled outputs slightly lost yellow tone and projected whiter tone. 
 - For all models, fabrics and carpets seemed to be the toughest ones to upscale as most outputs failed capturing the texture. Some of them look much worse than its original low-resolution version. 
 
-While the outputs of the A-ESRGAN-Multi scale model weren’t necessarily the best, according to the authors of A-ESRGAN-Multi, the multi scale discriminators model captures the texture better. So ***I chose A-ESRGAN-Multi for further training*** hoping it would help better capture the fabric and carpet textures.
+While the outputs of the A-ESRGAN-Multi scale model weren’t necessarily the best, according to the authors of A-ESRGAN-Multi, the multi scale discriminators model captures the texture better. So I chose ***A-ESRGAN-Multi*** for further training hoping it would help better capture the fabric and carpet textures.
 
 Following three different training approaches were performed with the A-ESRGAN-Multi model. 
 
@@ -48,7 +50,6 @@ According to the authors, A-ESRGAN is trained in two stages, which have the same
 2. Use the trained Real-ESRNet model as an initialization of the generator, and train the A-ESRGAN with a combination of L1 loss, perceptual loss and GAN loss. 
 
 ## Codes
-The codes presented here are for the case of using the full dataset (Training 1). 
 
 ### Download A-ESRGAN.git and install basicsr.
 
@@ -119,50 +120,52 @@ nohup python train.py -opt options/train_multiaesrgan_x4plus.yml --auto_resume
 
 
 ### Make Inferences
-Training 1 with the full dataset was done with 150,000 iterations (given the size of dataset, this equals 6 epochs). Inferences were made using the following line. 
+ Inferences were made using the following line. 
 
 ```
 python inference_aesrgan.py --model_path=experiments/pretrained_models/net_g_150000.pth --input=inputs --output=outputs --tile=200
 ```
 
-The training from scratch with the full material dataset improved the image qualities in all categories (image examples are provided later). But it seemed that the model still didn’t capture the texture of fabrics and carpets very well. I re-reviewed the datasets and removed one-colored and no-pattern samples as I thought these samples weren’t really helping the model to learn any textures or even patterns. Then the same training process was repeated with the reduced dataset (Training 2). 
+The training from scratch with the full material dataset (Training 1) improved the image qualities in all categories (image examples are provided later). But it seemed that the model still didn’t capture the texture of fabrics and carpets very well. I re-reviewed the datasets and removed one-colored and no-pattern samples as I thought these samples weren’t really helping the model to learn any textures or even patterns. Then the same training process was repeated with the reduced dataset (Training 2). 
 
 ## Training Hyperparameters
 
-There were slight differences in hyperparameters setting between the two training sessions as well. Here is the summary compared to the original model by the authors.  
+In addition to the different datasets, I made some changes to the hyperparameters for each training. Here is the summary of the hyperparameters used, compared to the original model by the authors.  
 
 ![hyperparameters](https://github.com/sooolee/super-resolution/blob/main/images_readme/hyperparameters.png?raw=true)
 
 
-Other than the different datasets, following hyperparameters are worth noting as they would have impacted the output quality. Since no ablation study is performed, it is not possible to know how each of these impacted the quality.
+Following hyperparameters are worth noting as they would have impacted the output quality. Since no ablation study is performed, it is not possible to know how much each of these impacted the quality.
 
-- ***Initialization of generator:*** Training of ESRNet was done only once but resulted in multiple checkpoints. Initially I used the one at 35,000 iteration for Training 1, but changed to one at 55,000 iteration for Training 2 because the loss values were slightly better.
-- ***Total iteration:*** While dealing with the limited resources, I increased the total iteration for Training 2 as I lowered the learning rate. Retrospectively though, I feel that the iteration should have been increased even more to match the learning rate decrease. 
-- ***Learning rate:*** The same learning rate used in the original study was used for Training 1. Lower learning rate was used for Training 2 hoping for better results. 
-- ***Loss weight ratios between (Pixel : Perceptual : GAN):*** The original study set the same ratio between pixel and perceptual losses (1 : 1 : 0.1). I increased the pixel loss ratio and slightly the GAN loss ratio to (2 : 1 : 0.2). The rationale behind it is that since I’m dealing with material images, where the contents are mostly patterns or some images spread out evenly, the perceptual losses had less meaning. In fact, I trained the model with (4 : 1 : 0.2) and the model inferences produced a lot more artifacts. For training 2, I went back to (1 : 1 : 0.1). 
+- ***Initialization of generator:*** Training of ESRNet was done only once but resulted in multiple checkpoints. Training 1 used the checkpoint at 35,000 iteration and Training 2 used the one at 55,000 iteration. The loss values of 55,000 were slightly better.
+- ***Total iteration:*** I increased the total iteration for Training 2 as I lowered the learning rate. Retrospectively, I think the iteration should have been increased more to match the learning rate decrease. 
+- ***Learning rate:*** Training 1 used a learning rate of 1e-4, same as the original study. A learning rate of 1e-5 was used for Training 2.
+- ***Loss weight ratios between (Pixel : Perceptual : GAN):*** The original study used the same ratios between pixel and perceptual losses (1 : 1 : 0.1). I increased the pixel loss ratio to 2, and GAN loss to 0.2 (2 : 1 : 0.2). The rationale behind it is that since I’m dealing with interior material images, where the contents are mostly patterns, the perceptual losses had less meaning. For training 2, the ratio of (1 : 1 : 0.1) is used. 
+
+> - I once trained the model with a (4 : 1 : 0.2) ratio and the model inferences generated a lot of artifacts, which is a known issue of the pixel loss focused models. 
 
 
 ## Results
 
-The same samples used for the Initial Inferences were used for inferences by the newly trained models and the same lower quality examples are presented below for comparisons. 
+Let's see the performace of the newly trained models: The same lower quality examples are presented below for comparisons. 
 
-**From Left to Right Columns: Original-LR, A_ESRGAN-Multi, Training 1, Training 2**
+**From Left to Right Columns: Original-LR >>> A_ESRGAN-Multi >>> Training 1 >>> Training 2**
 ![trained_inferences](https://github.com/sooolee/super-resolution/blob/main/images_readme/trained_inferences.png?raw=true)
 
-Both Training 1 and 2 Models show improvements from the original A-ESRGAN-Multi inferences for most types of materials, and especially so for fabrics and carpets. 
-I was expecting better results for fabrics and carpets from Training 2 Model as the datasets were more focused. But interestingly, Training 1 Model outputs visually look better. I can’t tell whether it is due to Training 1’s loss weight ratio (more pixel loss than perceptual loss), or because Training 2 suffered from lack of iterations while having much lower learning rate. This is because I made changes to multiple hyperparameters at a time. My mistake!!! 
-For some types of materials, the outputs of the trained models weren’t necessarily better, just different. 
-Outputs by Training 1 Model shows slight loss of yellow tint in most of the samples. 
+- Both Training 1 and 2 Models show improvements from the original A-ESRGAN-Multi inferences for most types of materials, and especially so for fabrics and carpets. 
+- I was expecting better results for fabrics and carpets from Training 2 Model as the datasets were more focused on those. But interestingly, Training 1 Model outputs look better. I can’t tell whether it is because Training 1 used more pixel loss ratio than perceptual loss, or because Training 2 suffered from lack of iterations while having much lower learning rate. This is because I made changes to multiple hyperparameters all at once. My mistake!!! 
+- For some types of materials, the outputs of the trained models weren’t necessarily better, just different. 
+- Outputs by Training 1 Model shows slight loss of yellow tint in most of the samples. 
 
 ## Conclusions
-This was a very fun project for me to learn through researching and training different algorithms with different hyperparameters and datasets. Unfortunately, the quality of outputs using the two trained models are not acceptable for Mattoboard. However, I believe the training I performed was not complete, especially with the maximum total iteration number being only 11 epochs. It leaves many possibilities of making AI upscaling models work at a commercial level. I plan to come back to this project and try some more later. 
+This was a very fun project for me to learn through researching and training different algorithms with different hyperparameters and datasets. Unfortunately, the quality of outputs using the two trained models are not acceptable for Mattoboard. However, I believe the training I performed was not complete, especially considering the maximum total iteration number being only 11 epochs. This leaves that there are still good opportunities of making AI upscaling algorithms to work at a commercial level. I plan to come back to this project and try some more later. 
 
 ***Lessons learned:*** Training with different hyperparameters needs to be more carefully designed in the beginning so that impacts by each can be explained. 
 
-## Stable Diffusion Upscaler
-{Update} -- 
-Later, I used Stable Diffusion Upscaler `stabilityai/stable-diffusion-x4-upscaler` and am very impressed by the results. The Stable Diffusion outputs for the same 5 examples from above are presented below.
+## {UPDATE} -- Stable Diffusion Upscaler
+I tried Stable Diffusion Upscaler `stabilityai/stable-diffusion-x4-upscaler` and am very impressed by the results. The Stable Diffusion outputs for some of the examples from above are presented below.
 
+**From Left to Right Columns: Original-LR >>> Training 1 Model >>> Stable-Diffusion**
 ![sd_examples](https://github.com/sooolee/super-resolution/blob/main/images_readme/sd_inferences.png?raw=true)
 
-Further experiments would be needed but this is very exciting and promising for Mattoboard. 
+This is very exciting and promising for Mattoboard and I will look further into this.
