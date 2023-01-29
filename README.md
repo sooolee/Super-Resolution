@@ -158,12 +158,16 @@ Let's see the performace of the newly trained models: The same lower quality exa
 - Outputs by Training 1 Model shows slight loss of yellow tint in most of the samples. 
 
 ## Conclusions
-This was a very fun project for me to learn through researching and training different algorithms with different hyperparameters and datasets. Unfortunately, the quality of outputs using the two trained models are not acceptable for Mattoboard. However, I believe the training I performed was not complete, especially considering the maximum total iteration number being only 11 epochs. This leaves that there are still good opportunities of making AI upscaling algorithms to work at a commercial level. I plan to come back to this project and try some more later. 
+This was a very fun project for me to learn through researching and training different algorithms with different hyperparameters and datasets. Unfortunately, the quality of outputs using the two trained models are not acceptable for Mattoboard. 
+
+However, I retrospectively think there are some weaknesses in my training approach. First I had very small number of training dataset especially for training from scratch. In addition, the maximum total iteration number was only 11 epochs. Not enough for pretraining the model. I wonder as well why fine-tuning didn't work well as I think this could have been the ideal case for transfer learning. 
+
+This leaves that there still should be good opportunities of making AI upscaling algorithms to work at a commercial level. I plan to come back to this project and try some more later. 
 
 ***Lessons learned:*** Training with different hyperparameters needs to be more carefully designed in the beginning so that impacts by each can be explained. 
 
 ## {UPDATE} -- Stable Diffusion Upscaler
-I tried Stable Diffusion Upscaler `stabilityai/stable-diffusion-x4-upscaler` and am very impressed by the results. The Stable Diffusion outputs for some of the examples from above are presented below.
+I tried Stable Diffusion Upscaler `stabilityai/stable-diffusion-x4-upscaler` and am very impressed by the results. The Stable Diffusion outputs for some of the examples from above are presented below. The text propmts were left blank for all samples intentionally.
 
 **From Left to Right Columns: Original-LR >>> Training 1 Model >>> Stable-Diffusion**
 ![sd_examples](https://github.com/sooolee/super-resolution/blob/main/images_readme/sd_inferences.png?raw=true)
