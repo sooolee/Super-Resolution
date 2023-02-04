@@ -37,7 +37,7 @@ While there are many good quality outputs, I am presenting some of the lower qua
 
 While the outputs of the A-ESRGAN-Multi scale model weren’t necessarily the best, according to the authors of A-ESRGAN-Multi, the multi scale discriminators model captures the texture better. So I chose ***A-ESRGAN-Multi*** for further training hoping it would help better capture the fabric and carpet textures.
 
-Following three different training approaches were performed with the A-ESRGAN-Multi model. 
+Three training approaches were performed with the A-ESRGAN-Multi model. 
 
 - Fine-tuning with the full dataset
 - Training 1: Initialization of generator and training of A-ESRGAN-Multi using the full dataset
